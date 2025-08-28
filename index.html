@@ -1,170 +1,37 @@
-
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Minhas Despesas</title>
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#2b8cff">
-<style>
-  body{margin:0;font-family:sans-serif;background:#0f1115;color:#e8edf7}
-  header{padding:16px;position:sticky;top:0;z-index:5;background:#181b22}
-  header h1{margin:0;font-size:1.4rem;display:flex;justify-content:space-between;align-items:center}
-  .metric{margin-right:12px}
-  ul{list-style:none;padding:0;margin:0}
-  li{background:#181b22;padding:10px;margin:6px 0;border-radius:8px;display:flex;justify-content:space-between;cursor:pointer}
-  .fab{position:fixed;right:20px;bottom:24px;width:58px;height:58px;border-radius:50%;border:none;background:#2b8cff;color:white;font-size:2rem;line-height:0;display:grid;place-items:center;cursor:pointer;z-index:6}
-  .modal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:flex-end;justify-content:center;z-index:10}
-  .modal.show{display:flex}
-  .sheet{width:100%;max-width:600px;background:#181b22;border-radius:18px 18px 0 0;padding:16px;color:#fff}
-  label{display:block;margin:8px 0 4px}
-  input,select{width:100%;padding:8px;border-radius:8px;border:none;background:#10131a;color:#fff}
-  .actions{display:flex;gap:10px;margin-top:12px}
-  .btn{flex:1;padding:10px;border-radius:8px;cursor:pointer;font-weight:bold}
-  .btn.primary{background:#2b8cff;color:white}
-  .btn.danger{background:#ef4444;color:white}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Igreja - Gestão</title>
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+  <div class="container">
+    <h2>Gestão da Igreja</h2>
 
-<header>
-  <h1>
-    Minhas Despesas
-    <div id="authBtns">
-      <button id="loginBtn">🔑 Entrar com Google</button>
-      <button id="logoutBtn" style="display:none">🚪 Sair</button>
+    <div id="loginDiv">
+      <input type="email" id="emailLogin" placeholder="Email">
+      <input type="password" id="senhaLogin" placeholder="Senha">
+      <button onclick="login()">Entrar</button>
+      <p>Ainda não tem conta? <a href="#" onclick="toggleCadastro()">Cadastre-se</a></p>
     </div>
-  </h1>
-  <div>
-    <span class="metric">Total: <strong id="totMes">R$ 0,00</strong></span>
-    <span class="metric">A pagar: <strong id="aPagar">R$ 0,00</strong></span>
-  </div>
-</header>
 
-<main>
-  <ul id="list"></ul>
-</main>
-
-<button class="fab" id="fab">+</button>
-
-<!-- Modal cadastro -->
-<div class="modal" id="modalForm">
-  <div class="sheet">
-    <h2 id="formTitle">Adicionar despesa</h2>
-    <label>Descrição</label>
-    <input id="descricao" />
-    <label>Valor (R$)</label>
-    <input id="valor" type="number" step="0.01" />
-    <label>Data</label>
-    <input id="data" type="date" />
-    <label>Categoria</label>
-    <select id="categoria">
-      <option value="food">Alimentação</option>
-      <option value="home">Moradia</option>
-      <option value="trans">Transporte</option>
-      <option value="others">Outros</option>
-    </select>
-    <div class="actions">
-      <button class="btn" id="cancelForm">Cancelar</button>
-      <button class="btn primary" id="save">Salvar</button>
+    <div id="cadastroDiv" style="display:none;">
+      <input type="text" id="nomeCadastro" placeholder="Nome">
+      <input type="email" id="emailCadastro" placeholder="Email">
+      <input type="password" id="senhaCadastro" placeholder="Senha">
+      <select id="tipoCadastro">
+        <option value="membro">Membro</option>
+        <option value="lider">Líder</option>
+        <option value="admin">Administrador</option>
+      </select>
+      <button onclick="cadastro()">Cadastrar</button>
+      <p>Já tem conta? <a href="#" onclick="toggleCadastro()">Entrar</a></p>
     </div>
   </div>
-</div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyD96O-B-lDYaD2mkCsHCJz1C2fpbTGCEXM",
-  authDomain: "minhas-despesas-54933.firebaseapp.com",
-  projectId: "minhas-despesas-54933",
-  storageBucket: "minhas-despesas-54933.appspot.com",
-  messagingSenderId: "1017318992378",
-  appId: "1:1017318992378:web:a6570637aa3011c8eb1c43"
-};
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-const provider = new GoogleAuthProvider();
-
-let expenses = [];
-let currentUser = null;
-let unsubscribe = null; // para limpar o listener de despesas
-
-function fmtMoney(v){ return (v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}); }
-
-function render(){
-  const ul=document.getElementById("list"); ul.innerHTML="";
-  let total=0, toPay=0;
-  expenses.forEach(e=>{
-    total+=Number(e.value);
-    if(!e.paid) toPay+=Number(e.value);
-    const li=document.createElement("li");
-    li.innerHTML=`<span>${e.title}</span><span>${fmtMoney(e.value)}</span>`;
-    li.onclick=()=>togglePago(e);
-    ul.appendChild(li);
-  });
-  document.getElementById("totMes").textContent=fmtMoney(total);
-  document.getElementById("aPagar").textContent=fmtMoney(toPay);
-}
-
-function colRef(){ return collection(db,"users",currentUser.uid,"expenses"); }
-async function saveExpense(exp){ await setDoc(doc(colRef(), exp.id), exp,{merge:true}); }
-async function deleteExpense(id){ await deleteDoc(doc(colRef(),id)); }
-
-function togglePago(e){ e.paid=!e.paid; saveExpense(e); }
-
-// === FORM ===
-const modal=document.getElementById("modalForm");
-document.getElementById("fab").onclick=()=>{modal.classList.add("show");};
-document.getElementById("cancelForm").onclick=()=>modal.classList.remove("show");
-document.getElementById("save").onclick=()=>{
-  const exp={
-    id: "exp_"+Date.now(),
-    title: document.getElementById("descricao").value,
-    value: parseFloat(document.getElementById("valor").value),
-    date: document.getElementById("data").value,
-    category: document.getElementById("categoria").value,
-    paid:false,
-    updatedAt:Date.now()
-  };
-  if(currentUser){ saveExpense(exp); }
-  modal.classList.remove("show");
-};
-
-// === LOGIN ===
-document.getElementById("loginBtn").onclick=()=>signInWithPopup(auth,provider);
-document.getElementById("logoutBtn").onclick=()=>signOut(auth);
-
-// === CONTROLE DE LOGIN/LOGOUT ===
-onAuthStateChanged(auth,(user)=>{
-  currentUser=user;
-  if(user){
-    document.getElementById("loginBtn").style.display="none";
-    document.getElementById("logoutBtn").style.display="inline";
-
-    if(unsubscribe) unsubscribe(); // remove listener antigo
-
-    unsubscribe = onSnapshot(colRef(),(snap)=>{
-      expenses=snap.docs.map(d=>d.data());
-      render();
-    });
-
-  }else{
-    if(unsubscribe) unsubscribe();
-    unsubscribe=null;
-
-    expenses=[]; render();
-
-    document.getElementById("loginBtn").style.display="inline";
-    document.getElementById("logoutBtn").style.display="none";
-  }
-});
-</script>
-
+  <script type="module" src="js/firebase.js"></script>
+  <script type="module" src="js/auth.js"></script>
 </body>
 </html>
