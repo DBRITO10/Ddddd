@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel - Gestão</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="container">
+    <h2>Painel da Igreja</h2>
+    <button onclick="logout()">Sair</button>
+
+    <div id="painelAdmin" style="display:none;">
+      <h3>Administrador</h3>
+      <div id="listaUsuarios"></div>
+    </div>
+
+    <div id="painelLider" style="display:none;">
+      <h3>Líder</h3>
+      <a href="escala.html">Gerenciar Escalas</a>
+    </div>
+
+    <div id="painelMembro" style="display:none;">
+      <h3>Membro</h3>
+      <a href="escala.html">Ver minha escala</a>
+    </div>
+  </div>
+
+  <script type="module" src="js/firebase.js"></script>
+  <script type="module" src="js/painel.js"></script>
+</body>
+</html>
