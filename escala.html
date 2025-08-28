@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Escalas</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="container">
+    <h2>Escalas de Culto</h2>
+    <button onclick="logout()">Sair</button>
+
+    <div id="escalaLider" style="display:none;">
+      <h3>Criar Escala</h3>
+      <input type="date" id="dataCulto">
+      <input type="time" id="horaCulto">
+      <button onclick="criarEscala()">Criar Escala</button>
+
+      <h3>Minhas Escalas</h3>
+      <div id="listaEscalas"></div>
+    </div>
+
+    <div id="escalaMembro" style="display:none;">
+      <h3>Minhas Escalas</h3>
+      <div id="escalaMembroLista"></div>
+    </div>
+  </div>
+
+  <script type="module" src="js/firebase.js"></script>
+  <script type="module" src="js/escala.js"></script>
+</body>
+</html>
