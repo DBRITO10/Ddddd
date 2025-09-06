@@ -1,6 +1,8 @@
-import { auth, db } from "./firebase.js";
-import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
-import { ref, set, push, get } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js";
+import { auth, db, logout } from "./firebase.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { ref, push, set, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+window.logout = logout;
 
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
@@ -10,77 +12,62 @@ onAuthStateChanged(auth, async (user) => {
 
   const snap = await get(ref(db, "usuarios/" + user.uid));
   if (!snap.exists()) return;
-
   const dados = snap.val();
 
   if (dados.tipo === "lider") {
     document.getElementById("escalaLider").style.display = "block";
-    carregarEscalas(dados.ministerio, user.uid);
+    carregarEscalas(user.uid);
   } else {
     document.getElementById("escalaMembro").style.display = "block";
     carregarEscalasMembro(user.uid);
   }
 });
 
-// Criar escala (líder)
-window.criarEscala = async function() {
+window.criarEscala = async function () {
   const data = document.getElementById("dataCulto").value;
   const hora = document.getElementById("horaCulto").value;
+  const user = auth.currentUser;
 
   if (!data || !hora) {
-    alert("Preencha data e hora!");
+    alert("Preencha data e hora.");
     return;
   }
 
-  const user = auth.currentUser;
-  const snap = await get(ref(db, "usuarios/" + user.uid));
-  if (!snap.exists()) return;
-
-  const dados = snap.val();
-  const novaRef = push(ref(db, "cultos"));
-
+  const novaRef = push(ref(db, "escalas"));
   await set(novaRef, {
-    data: data,
-    hora: hora,
-    ministerio: dados.ministerio,
-    criador: user.uid,
-    escalados: [user.uid] // líder entra automaticamente
+    lider: user.uid,
+    data,
+    hora
   });
 
   alert("Escala criada!");
-  carregarEscalas(dados.ministerio, user.uid);
+  carregarEscalas(user.uid);
 };
 
-// Carregar escalas do líder
-async function carregarEscalas(ministerio, uid) {
-  const snap = await get(ref(db, "cultos"));
-  if (!snap.exists()) return;
+async function carregarEscalas(uid) {
+  const snap = await get(ref(db, "escalas"));
+  const lista = document.getElementById("listaEscalas");
+  lista.innerHTML = "";
 
-  let html = "<ul>";
   snap.forEach((child) => {
-    const c = child.val();
-    if (c.ministerio === ministerio && c.criador === uid) {
-      html += `<li>${c.data} - ${c.hora} (${c.ministerio})</li>`;
+    const esc = child.val();
+    if (esc.lider === uid) {
+      const div = document.createElement("div");
+      div.innerText = `Culto em ${esc.data} às ${esc.hora}`;
+      lista.appendChild(div);
     }
   });
-  html += "</ul>";
-
-  document.getElementById("listaEscalas").innerHTML = html;
 }
 
-// Carregar escalas do membro
 async function carregarEscalasMembro(uid) {
-  const snap = await get(ref(db, "cultos"));
-  if (!snap.exists()) return;
+  const snap = await get(ref(db, "escalas"));
+  const lista = document.getElementById("escalaMembroLista");
+  lista.innerHTML = "";
 
-  let html = "<ul>";
   snap.forEach((child) => {
-    const c = child.val();
-    if (c.escalados && c.escalados.includes(uid)) {
-      html += `<li>${c.data} - ${c.hora} (${c.ministerio})</li>`;
-    }
+    const esc = child.val();
+    const div = document.createElement("div");
+    div.innerText = `Culto em ${esc.data} às ${esc.hora}`;
+    lista.appendChild(div);
   });
-  html += "</ul>";
-
-  document.getElementById("escalaMembroLista").innerHTML = html;
 }
