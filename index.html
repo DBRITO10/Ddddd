@@ -10,6 +10,7 @@
   <div class="container">
     <h2>Gestão da Igreja</h2>
 
+    <!-- Login -->
     <div id="loginDiv">
       <input type="email" id="emailLogin" placeholder="Email">
       <input type="password" id="senhaLogin" placeholder="Senha">
@@ -17,15 +18,11 @@
       <p>Ainda não tem conta? <a href="#" onclick="toggleCadastro()">Cadastre-se</a></p>
     </div>
 
+    <!-- Cadastro -->
     <div id="cadastroDiv" style="display:none;">
       <input type="text" id="nomeCadastro" placeholder="Nome">
       <input type="email" id="emailCadastro" placeholder="Email">
       <input type="password" id="senhaCadastro" placeholder="Senha">
-      <select id="tipoCadastro">
-        <option value="membro">Membro</option>
-        <option value="lider">Líder</option>
-        <option value="admin">Administrador</option>
-      </select>
       <button onclick="cadastro()">Cadastrar</button>
       <p>Já tem conta? <a href="#" onclick="toggleCadastro()">Entrar</a></p>
     </div>
