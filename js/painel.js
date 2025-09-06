@@ -1,6 +1,8 @@
-import { auth, db } from "./firebase.js";
-import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
-import { ref, get } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js";
+import { auth, db, logout } from "./firebase.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { ref, get, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+window.logout = logout;
 
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
@@ -10,7 +12,6 @@ onAuthStateChanged(auth, async (user) => {
 
   const snap = await get(ref(db, "usuarios/" + user.uid));
   if (!snap.exists()) return;
-
   const dados = snap.val();
 
   if (dados.tipo === "admin") {
@@ -23,17 +24,26 @@ onAuthStateChanged(auth, async (user) => {
   }
 });
 
-// Lista de usuários (somente admin)
 async function carregarUsuarios() {
+  const listaDiv = document.getElementById("listaUsuarios");
   const snap = await get(ref(db, "usuarios"));
-  if (!snap.exists()) return;
+  listaDiv.innerHTML = "";
 
-  let html = "<ul>";
   snap.forEach((child) => {
     const u = child.val();
-    html += `<li>${u.nome} - ${u.tipo}</li>`;
+    const div = document.createElement("div");
+    div.innerHTML = `
+      <strong>${u.nome}</strong> - ${u.email} - [${u.tipo}]
+      <select onchange="alterarTipo('${child.key}', this.value)">
+        <option value="membro" ${u.tipo === "membro" ? "selected" : ""}>Membro</option>
+        <option value="lider" ${u.tipo === "lider" ? "selected" : ""}>Líder</option>
+        <option value="admin" ${u.tipo === "admin" ? "selected" : ""}>Administrador</option>
+      </select>
+    `;
+    listaDiv.appendChild(div);
   });
-  html += "</ul>";
-
-  document.getElementById("listaUsuarios").innerHTML = html;
 }
+
+window.alterarTipo = function (uid, tipo) {
+  update(ref(db, "usuarios/" + uid), { tipo });
+};
