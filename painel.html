@@ -11,20 +11,28 @@
     <h2>Painel da Igreja</h2>
     <button onclick="logout()">Sair</button>
 
+    <!-- Admin -->
     <div id="painelAdmin" style="display:none;">
       <h3>Administrador</h3>
-      <p>Aqui você pode gerenciar usuários:</p>
+      <div id="dashboard"></div>
+      <h4>Usuários Pendentes</h4>
+      <div id="usuariosPendentes"></div>
+      <h4>Todos Usuários</h4>
       <div id="listaUsuarios"></div>
     </div>
 
+    <!-- Líder -->
     <div id="painelLider" style="display:none;">
       <h3>Líder</h3>
       <a href="escala.html">Gerenciar Escalas</a>
     </div>
 
+    <!-- Membro -->
     <div id="painelMembro" style="display:none;">
       <h3>Membro</h3>
       <a href="escala.html">Ver minha escala</a>
+      <h4>Notificações</h4>
+      <div id="notificacoes"></div>
     </div>
   </div>
 
