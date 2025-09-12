@@ -1,18 +1,50 @@
-<div id="painelAdmin" style="display:none;">
-  <h3>Administrador</h3>
-  <div id="dashboard"></div>
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel - Gestão</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="container">
+    <h2>Painel da Igreja</h2>
+    <button onclick="logout()">Sair</button>
 
-  <h4>Criar Usuário</h4>
-  <input type="text" id="nomeNovo" placeholder="Nome">
-  <input type="email" id="emailNovo" placeholder="Email">
-  <input type="password" id="senhaNovo" placeholder="Senha">
-  <select id="tipoNovo">
-    <option value="membro">Membro</option>
-    <option value="lider">Líder</option>
-    <option value="admin">Administrador</option>
-  </select>
-  <button onclick="criarUsuario()">Criar</button>
+    <!-- Admin -->
+    <div id="painelAdmin" style="display:none;">
+      <h3>Administrador</h3>
+      <div id="dashboard"></div>
 
-  <h4>Gerenciar Usuários</h4>
-  <div id="listaUsuarios"></div>
-</div>
+      <h4>Criar Usuário</h4>
+      <input type="text" id="nomeNovo" placeholder="Nome">
+      <input type="email" id="emailNovo" placeholder="Email">
+      <input type="password" id="senhaNovo" placeholder="Senha">
+      <select id="tipoNovo">
+        <option value="membro">Membro</option>
+        <option value="lider">Líder</option>
+        <option value="admin">Administrador</option>
+      </select>
+      <button onclick="criarUsuario()">Criar</button>
+
+      <h4>Gerenciar Usuários</h4>
+      <div id="listaUsuarios"></div>
+    </div>
+
+    <!-- Líder -->
+    <div id="painelLider" style="display:none;">
+      <h3>Líder</h3>
+      <a href="escala.html">Gerenciar Escalas</a>
+    </div>
+
+    <!-- Membro -->
+    <div id="painelMembro" style="display:none;">
+      <h3>Membro</h3>
+      <a href="escala.html">Ver minha escala</a>
+    </div>
+  </div>
+
+  <script type="module" src="js/firebase.js"></script>
+  <script type="module" src="js/painel.js"></script>
+</body>
+</html>
