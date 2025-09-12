@@ -2,7 +2,6 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebas
 import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { getDatabase } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-// Configuração do Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyCq6C_QcSm3sNAEMglDsb48eZnIZSoj--M",
   authDomain: "igreja-79733.firebaseapp.com",
