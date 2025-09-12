@@ -7,10 +7,8 @@ window.login = function () {
   const senha = document.getElementById("senhaLogin").value;
 
   signInWithEmailAndPassword(auth, email, senha)
-    .then(() => {
-      window.location.href = "painel.html";
-    })
-    .catch((err) => alert("Erro ao entrar: " + err.message));
+    .then(() => window.location.href = "painel.html")
+    .catch(err => alert("Erro ao entrar: " + err.message));
 };
 
 window.cadastro = function () {
@@ -19,23 +17,21 @@ window.cadastro = function () {
   const senha = document.getElementById("senhaCadastro").value;
 
   createUserWithEmailAndPassword(auth, email, senha)
-    .then((cred) => {
+    .then(cred => {
       return set(ref(db, "usuarios/" + cred.user.uid), {
-        nome,
-        email,
-        tipo: "membro"
+        nome, email, tipo: "pendente"
       });
     })
     .then(() => {
-      alert("Cadastro realizado com sucesso!");
-      window.location.href = "painel.html";
+      alert("Cadastro enviado para aprovação do administrador.");
+      window.location.href = "index.html";
     })
-    .catch((err) => alert("Erro ao cadastrar: " + err.message));
+    .catch(err => alert("Erro ao cadastrar: " + err.message));
 };
 
 window.toggleCadastro = function () {
-  const loginDiv = document.getElementById("loginDiv");
-  const cadastroDiv = document.getElementById("cadastroDiv");
-  loginDiv.style.display = loginDiv.style.display === "none" ? "block" : "none";
-  cadastroDiv.style.display = cadastroDiv.style.display === "none" ? "block" : "none";
+  document.getElementById("loginDiv").style.display =
+    document.getElementById("loginDiv").style.display === "none" ? "block" : "none";
+  document.getElementById("cadastroDiv").style.display =
+    document.getElementById("cadastroDiv").style.display === "none" ? "block" : "none";
 };
